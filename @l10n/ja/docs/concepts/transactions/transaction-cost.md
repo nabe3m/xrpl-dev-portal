@@ -16,7 +16,7 @@ XRP LedgerをスパムやDoS攻撃から守るため、各トランザクショ�
 
 ## 現在のトランザクションコスト
 
-ネットワークが標準のトランザクションに必要とする現在の最低トランザクションコストは**0.00001 XRP**（10 drop）です。これは負荷が通常より高くなると増加することがあります。
+ネットワークが標準のトランザクションに必要とする現在の最低トランザクションコストは{% $env.PUBLIC_BASE_FEE %}です。これは負荷が通常より高くなると増加することがあります。
 
 また、[現在のトランザクションコストについて`xrpld`に問い合わせる](#トランザクションコストの問い合わせ)こともできます。
 
@@ -26,11 +26,17 @@ XRP LedgerをスパムやDoS攻撃から守るため、各トランザクショ�
 
 | トランザクション       | 負荷スケーリング前のコスト  |
 |-----------------------|--------------------------|
-| [Referenceトランザクション](#referenceトランザクションコスト)（ほとんどのトランザクション） | 10 drop |
+| [Referenceトランザクション](#referenceトランザクションコスト)（ほとんどのトランザクション） | {% $env.PUBLIC_BASE_FEE %} |
 | [Key Resetトランザクション](#key-resetトランザクション)| 0 |
-| [マルチシグトランザクション](../accounts/multi-signing.md)| 10 drop × （1 + 署名の数） |
-| [フルフィルメントを伴うEscrowFinishトランザクション](../../references/protocol/transactions/types/escrowfinish.md)| 10 drop × （33 + （バイト単位のフルフィルメントサイズ ÷ 16）） |
-| [AccountDeleteトランザクション](../accounts/deleting-accounts.md)| 2,000,000 drop |
+| [マルチシグトランザクション](../accounts/multi-signing.md)| {% $env.PUBLIC_BASE_FEE %} × （1 + 署名の数） |
+| [フルフィルメントを伴うEscrowFinishトランザクション](../../references/protocol/transactions/types/escrowfinish.md)| {% $env.PUBLIC_BASE_FEE %} × （33 + （バイト単位のフルフィルメントサイズ ÷ 16）） |
+| [AccountDeleteトランザクション](../accounts/deleting-accounts.md)| 200,000 drop |
+| [AMMCreateトランザクション](../tokens/decentralized-exchange/automated-market-makers.md) | 200,000 drop |
+| [Batchトランザクション](../transactions/batch-transactions.md) | {% $env.PUBLIC_BASE_FEE %} × （2 + 署名の数） + （内部トランザクションの手数料の合計） |
+| [Confidential MPTトランザクション](../tokens/fungible-tokens/confidential-transfers.md)（単一署名） {% amendment-disclaimer name="ConfidentialTransfer" /%} | 100 drop |
+| [Confidential MPTトランザクション](../tokens/fungible-tokens/confidential-transfers.md)（マルチシグ） {% amendment-disclaimer name="ConfidentialTransfer" /%} | 10 drop × （10 + 署名の数） |
+
+<!-- RESERVES_REMINDER: update cost in drops if reserves change -->
 
 
 ## トランザクションコストの受取人
@@ -54,7 +60,7 @@ XRP LedgerをスパムやDoS攻撃から守るため、各トランザクショ�
 
 ## ローカル負荷コスト
 
-各`xrpld`サーバには、現在の負荷に基づいてコストしきい値が保持されています。送信するトランザクションの`Fee`値が`xrpld`サーバの現在の負荷ベーストランザクションコストより低い場合、そのサーバはトランザクションの適用も中継もしません。（**注記:** [管理者接続](../../tutorials/get-started/get-started-http-websocket-apis.md)を介してトランザクションを送信する場合、トランザクションがスケーリングされていない最低トランザクションコストを満たすかぎり、サーバはそのトランザクションを適用し、中継します。）トランザクションの`Fee`値が大半のサーバの要件を満たさないかぎり、そのトランザクションが[コンセンサスプロセス](../consensus-protocol/index.md)を完了する可能性は極めて低くなります。
+各`xrpld`サーバには、現在の負荷に基づいてコストしきい値が保持されています。送信するトランザクションの`Fee`値が`xrpld`サーバの現在の負荷ベーストランザクションコストより低い場合、そのサーバはトランザクションの適用も中継もしません。（**注記:** [管理者接続](/docs/tutorials/get-started/get-started-http-websocket-apis.md)を介してトランザクションを送信する場合、トランザクションがスケーリングされていない最低トランザクションコストを満たすかぎり、サーバはそのトランザクションを適用し、中継します。）トランザクションの`Fee`値が大半のサーバの要件を満たさないかぎり、そのトランザクションが[コンセンサスプロセス](../consensus-protocol/index.md)を完了する可能性は極めて低くなります。
 
 ## オープンレジャーコスト
 
@@ -86,6 +92,8 @@ XRP LedgerをスパムやDoS攻撃から守るため、各トランザクショ�
 | 4つの署名を持つ[マルチシグトランザクション](../accounts/multi-signing.md) | 50 | 256 | 100 | 512 |
 | [Key Resetトランザクション](transaction-cost.md#key-resetトランザクション) | 0 | （事実上無限） | なし | （事実上無限） |
 | 32バイトのプリイメージ付きの[EscrowFinishトランザクション](../../references/protocol/transactions/types/escrowfinish.md)。 | 350 | 256 | 700 | 512 |
+
+{% admonition type="info" name="注記" %}標準のレジャーの基本手数料は通常{% $env.PUBLIC_BASE_FEE %}ですが、トランザクション量が多い場合には一時的に増加することがあります。バリデータが基本手数料の引き上げまたは引き下げを投票で決定した場合、標準手数料に基づくコスト（例えば、フルフィルメントを伴うEscrowFinishトランザクション）もそれに応じて調整されます。{% /admonition %}
 
 
 ## トランザクションコストの問い合わせ

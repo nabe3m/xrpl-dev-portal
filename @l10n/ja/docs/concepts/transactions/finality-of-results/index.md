@@ -43,13 +43,13 @@ labels:
 
 - 通常、[トランザクションが決済済みレジャーに適用される順序](../../ledgers/index.md)は、それらのトランザクションが現在のオープンレジャーに一時的に適用された順序とは異なります。そのため、関連するトランザクションに応じて、一時的に成功したトランザクションが失敗したり、一時的に失敗したトランザクションが成功したりする場合があります。以下に例を示します。
 
-   - 2つのトランザクションでそれぞれ、同じ[オファー](../../tokens/decentralized-exchange/offers.md)を[分散型取引所](../../tokens/decentralized-exchange/index.md)で完全に使用する場合、どちらか一方が先に成功すると、もう一方は失敗します。それらのトランザクションが適用される順序は変わる可能性があるため、成功したトランザクションが失敗したり、失敗したトランザクションが成功したりする可能性があります。オファーは部分的に実行できるため、成功する可能性もありますが、程度は異なります。
+  - 2つのトランザクションでそれぞれ、同じ[オファー](../../tokens/decentralized-exchange/offers.md)を[分散型取引所](../../tokens/decentralized-exchange/index.md)で完全に使用する場合、先に来た一方が成功し、もう一方は失敗する可能性があります。それらのトランザクションが適用される順序は変わる可能性があるため、成功したトランザクションが失敗したり、失敗したトランザクションが成功したりする可能性があります。オファーは部分的に実行されたり、複数の他のオファーを消費したりできるため、程度の差はあれ成功する可能性もあります。
 
-  - [分散型取引所](../../tokens/decentralized-exchange/index.md)で[オファー](../../tokens/decentralized-exchange/offers.md)を使用することで[クロスカレンシー支払い](../../payment-types/cross-currency-payments.md)は成功したが、別のトランザクションが同じオーダーブックでオファーを使用または作成した場合、クロスカレンシー支払いは仮に実行されたときとは異なる為替レートで成功する場合があります。[Partial Payment](../../payment-types/partial-payments.md)では、別の金額を送金することもできます。
+  - [分散型取引所](../../tokens/decentralized-exchange/index.md)で[オファー](../../tokens/decentralized-exchange/offers.md)を使用することで[クロスカレンシー支払い](../../payment-types/cross-currency-payments.md)は成功したが、別のトランザクションが同じオーダーブックに影響を与えた場合、クロスカレンシー支払いは仮に実行されたときとは異なる為替レートで成功する場合があります。[Partial Payment](../../payment-types/partial-payments.md)では、別の金額を送金することもできます。
 
   - 送金元に十分な資金がないために一時的に失敗した[Paymentトランザクション][]は、必要な資金を送金する別の取引が正規の順序で先に行われることにより、後で成功する可能性があります。逆も同様です。一時的に成功したトランザクションは、必要な資金を送金するトランザクションが標準的な順序に入れられたものの先に来なかったために失敗する可能性があります。
 
-  {% admonition type="success" name="ヒント" %}上記の理由により、XRP Ledgerに対してテストを実行しており、同じデータに影響する複数のアカウントがある場合、必ずトランザクション間のレジャーが閉じられるまでお待ちください。[スタンドアロンモード](../../networks-and-servers/xrpld-server-modes.md#スタンドアロンモード)のサーバに対してテストを実行する場合は、[レジャーを手動で閉じる](../../../infrastructure/testing-and-auditing/advance-the-ledger-in-stand-alone-mode.md)必要があります。{% /admonition %}
+  {% admonition type="success" name="ヒント" %}上記の理由により、XRP Ledger上の同じデータに影響する複数のアカウントが関与するテストを実行する場合は、必ずトランザクション間でレジャーが閉じられるまでお待ちください。[スタンドアロンモード](../../networks-and-servers/xrpld-server-modes.md#スタンドアロンモード)のサーバに対してテストを実行する場合は、[レジャーを手動で閉じる](../../../infrastructure/testing-and-auditing/advance-the-ledger-in-stand-alone-mode.md)必要があります。すべてのトランザクションが同じアカウントから送信される場合は、それらのトランザクションは常にシーケンス番号の順に実行されるため、この予防措置は不要です。{% /admonition %}
 
 
 ## 関連項目

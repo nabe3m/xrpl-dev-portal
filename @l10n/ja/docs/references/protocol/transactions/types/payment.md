@@ -46,7 +46,7 @@ Paymentは、[アカウントを作成](#アカウントの作成)する唯一�
 | `DeliverMin`     | [通貨額][]            | Amount       | いいえ      | _（省略可）_ このトランザクションで送金する、宛先通貨での最少金額。[Partial Payments](#partial-payments)の場合のみ有効になります。XRP以外の金額の場合、入れ子フィールドの名前では、アルファベットの小文字のみ使用してください。 |
 | `Destination`    | 文字列 - [アドレス][] | AccountID    | はい        | 支払いを受取るアカウントの一意アドレス。 |
 | `DestinationTag` | 数値                  | UInt32       | いいえ      | 宛先（支払先となる、ホスティングされている受取人）への支払い理由を明確にするための任意のタグ。 |
-| `DomainID`       | String - [Hash][]     | Hash256      | いいえ      | 許可されたドメインのレジャーエントリID。クロスカレンシー支払いの場合は、通貨を変換するために、対応する[許可されたDEX](../../../../concepts/tokens/decentralized-exchange/permissioned-dexes.md)のみを使用してください。送信者と受取人の両方が、指定されたドメインへのアクセスを許可する有効な資格証明を持っている必要があります。このフィールドは、クロスカレンシー支払いではない場合は効果がありません。(_[**PermissionedDEX** amendment][]が必要です。_ {% not-enabled /%}) |
+| `DomainID`       | String - [Hash][]     | Hash256      | いいえ      | 許可されたドメインのレジャーエントリID。クロスカレンシー支払いの場合は、通貨を変換するために、対応する[許可されたDEX](../../../../concepts/tokens/decentralized-exchange/permissioned-dexes.md)のみを使用してください。送信者と受取人の両方が、指定されたドメインへのアクセスを許可する有効な資格証明を持っている必要があります。このフィールドは、クロスカレンシー支払いではない場合は効果がありません。{% amendment-disclaimer name="PermissionedDEX" /%} このフィールドを使用する場合、トランザクションはドメインがまだ存在することを検証し、存在しない場合は`tecNO_PERMISSION`で失敗します。また、ドメインに対して検証した送信者と宛先のアカウントについて、期限切れの資格証明をレジャーから削除します。{% amendment-disclaimer name="fixCleanup3_4_0" /%} |
 | `InvoiceID`      | 文字列 - 16進文字     | UInt256      | いいえ      | この支払いの具体的な理由または識別子を表現する任意の256ビットハッシュ。 |
 | `Paths`          | パス配列の配列        | PathSet      | いいえ      | _（自動入力可能）_ このトランザクションに使用される[支払いパス](../../../../concepts/tokens/fungible-tokens/paths.md)の配列。XRP間のトランザクションでは省略する必要があります。 |
 | `SendMax`        | [通貨額][]            | Amount       | いいえ      | [送金手数料](../../../../concepts/tokens/fungible-tokens/transfer-fees.md)、為替レート、[スリッページ](http://en.wikipedia.org/wiki/Slippage_%28finance%29)を含め、このトランザクションに関して支払い元通貨での負担を許容する上限額。[トランザクションの送信コストとしてバーンされるXRP](../../../../concepts/transactions/transaction-cost.md)は含めないでください。XRP以外の金額の場合、入れ子フィールドの名前では、アルファベットの小文字のみ使用してください。クロスカレンシー支払いまたは複数のトークンを伴う支払いについては、このフィールドを入力する必要があります。XRP間の支払いでは省略する必要があります。 |
@@ -112,6 +112,7 @@ Payment型のトランザクションについては、[`Flags`フィールド](
 | `tfNoRippleDirect` | `0x00010000` | 65536  | デフォルトパスを使用せず、`Paths`フィールドに含まれているパスのみ使用します。これによりトランザクションは強制的に裁定機会を活用することになります。ほとんどのクライアントでは、これは必要ありません。 |
 | `tfPartialPayment` | `0x00020000` | 131072 | `SendMax`を超えていないのに指定された`Amount`を送金できない場合、即座に失敗とするのではなく、受取られる額を減額します。詳細は、[Partial Payments](#partial-payments)をご覧ください。 |
 | `tfLimitQuality`   | `0x00040000` | 262144 | すべての変換で、入力と出力との比率が`Amount`と`SendMax`との比率と同一であるか、さらに有利となるパスのみを採用します。詳細は、[クオリティの制限](#クオリティの制限)をご覧ください。 |
+| `tfSponsorCreatedAccount` | `0x00080000` | 524288 | このPaymentが[新しいアカウントを作成する](#アカウントの作成)場合にのみ有効です。有効にすると、トランザクションを送信する`Account`が、新しく作成されるアカウントの準備金をスポンサーします。`tfNoRippleDirect`、`tfPartialPayment`、`tfLimitQuality`と組み合わせることはできず、`Amount`はXRPでなければなりません。{% amendment-disclaimer name="Sponsor" /%} |
 
 ## Partial Payments
 
@@ -183,6 +184,7 @@ _([Credentials amendment][]が必要です。 {% not-enabled /%})_
 - 提供された資格証明は、受取人によって承認されている必要があります。
 - 提供された資格証明は、期限切れではない必要があります。
 - このトランザクションの送信者は、提供された資格証明のすべての受取人である必要があります。
+- 提供された資格証明は、いずれもゼロであってはなりません。{% amendment-disclaimer name="fixCleanup3_4_0" /%}
 
 提供された資格証明が、Deposit Authorizationを使用していないアカウントに対して提供されている場合、資格証明は不要ですが、有効性は依然としてチェックされます。
 
